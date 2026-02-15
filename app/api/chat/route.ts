@@ -16,11 +16,17 @@ export async function POST(req: NextRequest) {
 
     const model = genAI.getGenerativeModel({ model: "gemini-2.0-flash" });
 
+    const history = messages.slice(0, -1).map((msg: { role: string; content: string }) => ({
+      role: msg.role === "assistant" ? "model" : "user",
+      parts: [{ text: msg.content }],
+    }));
+    // Gemini requires history to start with a 'user' message
+    while (history.length > 0 && history[0].role !== "user") {
+      history.shift();
+    }
+
     const chat = model.startChat({
-      history: messages.slice(0, -1).map((msg: { role: string; content: string }) => ({
-        role: msg.role === "assistant" ? "model" : "user",
-        parts: [{ text: msg.content }],
-      })),
+      history,
       systemInstruction: { role: "user", parts: [{ text: systemPrompt }] },
     });
 
