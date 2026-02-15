@@ -21,7 +21,7 @@ export async function POST(req: NextRequest) {
         role: msg.role === "assistant" ? "model" : "user",
         parts: [{ text: msg.content }],
       })),
-      systemInstruction: systemPrompt,
+      systemInstruction: { role: "user", parts: [{ text: systemPrompt }] },
     });
 
     const lastMessage = messages[messages.length - 1];
